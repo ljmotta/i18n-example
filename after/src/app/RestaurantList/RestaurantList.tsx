@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   ActionGroup,
   Button,
@@ -11,6 +11,8 @@ import {
   Form,
   FormGroup,
   PageSection,
+  Select,
+  SelectOption,
   Skeleton,
   TextArea,
   TextInput,
@@ -18,6 +20,8 @@ import {
 } from '@patternfly/react-core';
 import moment from 'moment';
 import { TrashIcon } from '@patternfly/react-icons';
+import { appI18nDefaults, appI18nDictionaries, useAppI18n } from '@app/i18n';
+import { SelectDirection, SelectVariant } from '@patternfly/react-core/dist/js/components/Select/selectConstants';
 
 interface Data {
   title: string;
@@ -27,6 +31,7 @@ interface Data {
 }
 
 export const RestaurantList: React.FunctionComponent = () => {
+  const { i18n, locale, setLocale } = useAppI18n();
   const [title, setTitle] = useState('');
   const [review, setReview] = useState('');
   const [date, setDate] = useState('');
@@ -39,10 +44,17 @@ export const RestaurantList: React.FunctionComponent = () => {
 
   const [data, setData] = useState<Map<string, Data>>(new Map<string, Data>());
 
-  const locale = useMemo(() => 'en-US', []);
-
   const getCurrencyValue = useCallback(
-    (value: any) => new Intl.NumberFormat(locale, { style: 'currency', currency: 'USD' }).format(value),
+    (value: any) => new Intl.NumberFormat(locale, { style: 'currency', currency: i18n.currency }).format(value),
+    [locale]
+  );
+
+  const getDate = useCallback(
+    (date) => {
+      const localeDate = moment(date);
+      localeDate.locale(locale);
+      return localeDate.format('L');
+    },
     [locale]
   );
 
@@ -80,23 +92,47 @@ export const RestaurantList: React.FunctionComponent = () => {
     });
   }, []);
 
+  const [isOpen, setIsOpen] = useState(false);
+  const [selected, setSelected] = useState(appI18nDefaults.locale);
+  const select = useCallback((event, selection) => {
+    setIsOpen(false);
+    setSelected(selection);
+    setLocale(selection);
+  }, []);
+
   return (
     <>
       <PageSection>
-        <Title headingLevel="h1" size="lg">
-          Save your restaurant experience!
-        </Title>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Title headingLevel="h1" size="lg">
+            {i18n.title}
+          </Title>
+          <div style={{ width: '100px' }}>
+            <Select
+              variant={SelectVariant.single}
+              onToggle={setIsOpen}
+              onSelect={select}
+              selections={selected}
+              isOpen={isOpen}
+              direction={SelectDirection.down}
+            >
+              {Array.from(appI18nDictionaries.keys()).map((locale, index) => (
+                <SelectOption key={index} value={locale} />
+              ))}
+            </Select>
+          </div>
+        </div>
       </PageSection>
       <PageSection>
         <div style={{ width: '70%' }}>
           <Form>
             <FormGroup
-              label="Restaurant Name"
+              label={i18n.form.name}
               isRequired
               fieldId="name"
-              helperText="Please provide the restaurant name"
+              helperText={i18n.form.nameHelper}
               validated={invalidTitle ? 'error' : 'default'}
-              helperTextInvalid="Empty restaurant name"
+              helperTextInvalid={i18n.form.nameInvalidHelper}
             >
               <TextInput
                 isRequired
@@ -109,10 +145,10 @@ export const RestaurantList: React.FunctionComponent = () => {
               />
             </FormGroup>
             <FormGroup
-              label="Review"
+              label={i18n.form.review}
               fieldId="review"
               validated={invalidReview ? 'error' : 'default'}
-              helperTextInvalid="Empty review"
+              helperTextInvalid={i18n.form.reviewInvalidHelper}
             >
               <TextArea
                 type="text"
@@ -124,10 +160,10 @@ export const RestaurantList: React.FunctionComponent = () => {
               />
             </FormGroup>
             <FormGroup
-              label="Date of visit"
+              label={i18n.form.date}
               fieldId="date"
               validated={invalidDate ? 'error' : 'default'}
-              helperTextInvalid="Empty date"
+              helperTextInvalid={i18n.form.dateInvalidHelper}
             >
               <TextInput
                 type="text"
@@ -140,10 +176,10 @@ export const RestaurantList: React.FunctionComponent = () => {
               />
             </FormGroup>
             <FormGroup
-              label="Value of meal"
+              label={i18n.form.value}
               fieldId="meal"
               validated={invalidValue ? 'error' : 'default'}
-              helperTextInvalid="Empty value"
+              helperTextInvalid={i18n.form.valueInvalidHelper}
             >
               <TextInput
                 type="text"
@@ -157,10 +193,10 @@ export const RestaurantList: React.FunctionComponent = () => {
             </FormGroup>
             <ActionGroup>
               <Button variant="primary" onClick={save}>
-                Save
+                {i18n.form.save}
               </Button>
               <Button variant="link" onClick={cancel}>
-                Cancel
+                {i18n.form.cancel}
               </Button>
             </ActionGroup>
           </Form>
@@ -170,13 +206,13 @@ export const RestaurantList: React.FunctionComponent = () => {
       <PageSection>
         <div style={{ marginBottom: '20px' }}>
           <Title headingLevel="h2" size="lg">
-            Saved Restaurants
+            {i18n.saved.title}
           </Title>
         </div>
         <div style={{ width: '70%' }}>
           {Array.from(data.values()).length === 0 && (
             <Card>
-              <CardTitle>Create your first item!</CardTitle>
+              <CardTitle>{i18n.saved.createYourFirst}</CardTitle>
               <CardBody>
                 <Skeleton />
               </CardBody>
@@ -207,7 +243,7 @@ export const RestaurantList: React.FunctionComponent = () => {
                 <CardFooter>
                   <div style={{ display: 'flex', width: '100%' }}>
                     {value !== '' && <div style={{ width: '50%' }}>{getCurrencyValue(value)}</div>}
-                    {date !== '' && <div style={{ width: '50%' }}>{date}</div>}
+                    {date !== '' && <div style={{ width: '50%' }}>{getDate(date)}</div>}
                   </div>
                 </CardFooter>
               </Card>

@@ -5,6 +5,7 @@ import { RestaurantList } from '@app/RestaurantList/RestaurantList';
 import { NotFound } from '@app/NotFound/NotFound';
 import { useDocumentTitle } from '@app/utils/useDocumentTitle';
 import { LastLocationProvider, useLastLocation } from 'react-router-last-location';
+import { useAppI18n } from '@app/i18n';
 
 let routeFocusTimer: number;
 export interface IAppRoute {
@@ -25,16 +26,6 @@ export interface IAppRouteGroup {
 }
 
 export type AppRouteConfig = IAppRoute | IAppRouteGroup;
-
-const routes: AppRouteConfig[] = [
-  {
-    component: RestaurantList,
-    exact: true,
-    label: 'Restaurant List',
-    path: '/',
-    title: 'Restaurant List',
-  }
-];
 
 // a custom hook for sending focus to the primary content container
 // after a view has loaded so that subsequent press of tab key
@@ -67,27 +58,17 @@ const PageNotFound = ({ title }: { title: string }) => {
   return <Route component={NotFound} />;
 };
 
-const flattenedRoutes: IAppRoute[] = routes.reduce(
-  (flattened, route) => [...flattened, ...(route.routes ? route.routes : [route])],
-  [] as IAppRoute[]
-);
+const AppRoutes = (): React.ReactElement => {
+  const { i18n } = useAppI18n();
 
-const AppRoutes = (): React.ReactElement => (
-  <LastLocationProvider>
-    <Switch>
-      {flattenedRoutes.map(({ path, exact, component, title, isAsync }, idx) => (
-        <RouteWithTitleUpdates
-          path={path}
-          exact={exact}
-          component={component}
-          key={idx}
-          title={title}
-          isAsync={isAsync}
-        />
-      ))}
-      <PageNotFound title="404 Page Not Found" />
-    </Switch>
-  </LastLocationProvider>
-);
+  return (
+    <LastLocationProvider>
+      <Switch>
+        <RouteWithTitleUpdates path={'/'} exact={true} component={RestaurantList} title={i18n.restaurantList} />
+        <PageNotFound title={i18n.notFound.title} />
+      </Switch>
+    </LastLocationProvider>
+  );
+};
 
-export { AppRoutes, routes };
+export { AppRoutes };
