@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { Route, RouteComponentProps, Switch } from 'react-router-dom';
 import { accessibleRouteChangeHandler } from '@app/utils/utils';
-import { Dashboard } from '@app/Dashboard/Dashboard';
-import { Support } from '@app/Support/Support';
+import { RestaurantList } from '@app/RestaurantList/RestaurantList';
 import { NotFound } from '@app/NotFound/NotFound';
 import { useDocumentTitle } from '@app/utils/useDocumentTitle';
 import { LastLocationProvider, useLastLocation } from 'react-router-last-location';
@@ -29,20 +28,12 @@ export type AppRouteConfig = IAppRoute | IAppRouteGroup;
 
 const routes: AppRouteConfig[] = [
   {
-    component: Dashboard,
+    component: RestaurantList,
     exact: true,
-    label: 'Dashboard',
+    label: 'Restaurant List',
     path: '/',
-    title: 'PatternFly Seed | Main Dashboard',
-  },
-  {
-    component: Support,
-    exact: true,
-    isAsync: true,
-    label: 'Support',
-    path: '/support',
-    title: 'PatternFly Seed | Support Page',
-  },
+    title: 'Restaurant List',
+  }
 ];
 
 // a custom hook for sending focus to the primary content container

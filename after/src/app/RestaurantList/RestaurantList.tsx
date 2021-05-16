@@ -26,7 +26,7 @@ interface Data {
   value: string;
 }
 
-const Dashboard: React.FunctionComponent = () => {
+export const RestaurantList: React.FunctionComponent = () => {
   const [title, setTitle] = useState('');
   const [review, setReview] = useState('');
   const [date, setDate] = useState('');
@@ -218,26 +218,3 @@ const Dashboard: React.FunctionComponent = () => {
     </>
   );
 };
-
-export { Dashboard };
-
-/**
- * Save your restaurant experience!
- * input restaurant name
- * textinput description/review
- * date
- * value
- *
- * add / cancel
- *
- *
- *
- * card
- * title
- * review
- * date
- * value
- *
- * button remove (kebab remove)
- *
- */
